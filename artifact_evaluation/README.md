@@ -32,6 +32,8 @@ Instructions to set up a Dirigent cluster:
 - Clone Dirigent locally (`git clone https://github.com/eth-easl/dirigent.git`)
 - Set sandbox runtime (`containerd`) by editing `WORKER_RUNTIME` in `./scripts/setup.cfg`
 - Open Cloudlab experiment, open Cloudlab extension, and copy list of all addresses (RAW) using the extension. This puts the list of all nodes in your clipboard in format requested by the scripts below.
+- On your local machine, execute `./scripts/disable_pstate.sh dirigent user@node0 user@node1 ... user@nodeN`. 
+  - **This will cause the worker nodes to reboot. Wait here and monitor CloudLab to see when the nodes come back online. Only proceed when all workers show as Ready/Finished**
 - Run locally `./scripts/remote_install.sh`. Arguments should be the copied list of addresses from the previous step. For example, `./scripts/remote_install.sh user@node0 user@node1 ... user@nodeN`. This script should be executed only once.
 - Run locally `./scripts/remote_start_cluster.sh user@node0 user@node1 ... user@nodeN`. After this step Dirigent cluster should be operational. This script can be executed to restart Dirigent cluster in case you experience issues without reloading the Cloudlab cluster.
 
@@ -39,6 +41,8 @@ Instructions to set up Knative/K8s baseline cluster:
 - Make sure the cluster is in a reloaded state, i.e., that neither Dirigent nor Knative is not running.
 - Clone Invitro locally and checkout to `ha_k8s` branch (`git clone --branch=ha_k8s https://github.com/vhive-serverless/invitro`)
 - Open Cloudlab experiment, open Cloudlab extension, and copy list of all addresses (RAW) using the extension. This puts the list of all nodes in your clipboard in format requested by the scripts below.
+- On your local machine, execute `./scripts/disable_pstate.sh knative user@node0 user@node1 ... user@nodeN`. 
+  - **This will cause the worker nodes to reboot. Wait here and monitor CloudLab to see when the nodes come back online. Only proceed when all workers show as Ready/Finished**
 - Set up a Knative/K8s cluster by locally running `./scripts/setup/create_multinode.sh`. Arguments should be the copied list of addresses from the previous step. For example, `./scripts/setup/create_multinode.sh user@node0 user@node1 ... user@nodeN`. This script should be executed only once.
 - After a couple of minutes, once the script has completed executing, the cluster should be running, and you can ssh into `node0`. Execute `kubectl get pods -A` and verify that installation has completed successfully by checking that all pods are in `Running` or `Completed` state.
 
