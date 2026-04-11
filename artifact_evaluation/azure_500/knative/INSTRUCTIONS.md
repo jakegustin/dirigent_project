@@ -15,6 +15,7 @@ Instructions:
 - On `node0` create a directory where trace will be stored `cd invitro; mkdir data/traces/azure_500`.
 - Copy the trace from folder where this instruction file is located to the folder you previously created on `node0` using the following command `scp azure_500/*.csv user@node0:~/invitro/data/traces/azure_500`. 
 - On your local machine run `./scripts/start_resource_monitoring.sh user@node0 user@node1 ... user@nodeN`.
+- *If explicitly requested to change the experiment duration*, you can also adjust the ExperimentDuration in `~/invitro/cmd/config_knative.json`. Unless another value is requested, you should confirm it is set to 30.
 - On `node0` inside screen/tmux run `cd ~/invitro; go run cmd/loader.go --config cmd/config_knative.json`. Function deployment will take 10-20 minutes, and then experiment will run for additional 30 minutes.
 - Gather experiment results. Make sure you do not overwrite data from the other experiment, and you place results in correct folders.
   - Create a folder for storing results with `mkdir -p ./artifact_evaluation/azure_500/knative/results_azure_500`
