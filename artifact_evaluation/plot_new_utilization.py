@@ -10,30 +10,51 @@ def parse_args():
     if len(sys.argv) < 8:
         print("Usage:")
         print("python plot_new_utilization.py <knative_cpu_mem_usage_dir> <dirigent_cpu_mem_usage_dir> <output_dir> "
-              "<experiment_duration> <num_non_workers> <num_fast> user@node1 user@node2 ... user@nodeN")
+              "<experiment_duration> <num_non_workers> <node_classification_csv> user@node1 user@node2 ... user@nodeN")
         sys.exit(1)
 
     input_knative = sys.argv[1]
     input_dirigent = sys.argv[2]
     output_folder = sys.argv[3]
-
     experiment_duration = int(sys.argv[4])
     num_non_workers = int(sys.argv[5])
-    num_fast = int(sys.argv[6])
+    classification_csv = sys.argv[6]
+    node_order = sys.argv[7:]
 
-    node_order = sys.argv[7:]  # whitespace-separated
-
-    if len(node_order) < 1 + num_fast:
-        print("Error: not enough nodes for fast node counts + a required master")
-        sys.exit(1)
-
-    return input_knative, input_dirigent, output_folder, node_order, num_non_workers, num_fast, experiment_duration
+    return input_knative, input_dirigent, output_folder, node_order, num_non_workers, classification_csv, experiment_duration
 
 
-def build_node_sets(node_order, num_non_workers, num_fast):
+def build_node_sets(node_order, num_non_workers, classification_csv):
+    """
+    Classify worker nodes as fast/slow using the CSV.
+    The CSV rows are matched positionally to node_order[num_non_workers:].
+    """
     worker_nodes = node_order[num_non_workers:]
-    fast_nodes = worker_nodes[:num_fast]
-    slow_nodes = worker_nodes[num_fast:]
+
+    class_df = pd.read_csv(classification_csv)
+    class_df.columns = class_df.columns.str.strip()
+
+    if len(class_df) != len(worker_nodes):
+        print(
+            f"Warning: classification CSV has {len(class_df)} rows but there are "
+            f"{len(worker_nodes)} worker nodes. Matching by position up to the shorter length.",
+            file=sys.stderr,
+        )
+
+    fast_nodes, slow_nodes = [], []
+    for i, node in enumerate(worker_nodes):
+        if i >= len(class_df):
+            print(f"Warning: no classification for worker node '{node}' (index {i}), skipping", file=sys.stderr)
+            continue
+        node_class = str(class_df['class'].iloc[i]).strip().lower()
+        csv_name = str(class_df['node_name'].iloc[i]).strip()
+        if node_class == 'fast':
+            fast_nodes.append(node)
+        elif node_class == 'slow':
+            slow_nodes.append(node)
+        else:
+            print(f"Warning: unknown class '{node_class}' for CSV row {i} ('{csv_name}'), skipping", file=sys.stderr)
+
     return worker_nodes, fast_nodes, slow_nodes
 
 
@@ -51,8 +72,6 @@ def map_nodes_to_files(input_folder, node_order):
 
 def load_and_process(file_path, start, end):
     df = pd.read_csv(file_path, dtype={"machineName": str})
-
-    # Clean column names
     df.columns = df.columns.str.strip()
 
     if 'Timestamp' not in df.columns:
@@ -80,7 +99,6 @@ def load_and_process(file_path, start, end):
     print(file_path)
     df['time'] = df['Timestamp'] - df['Timestamp'].iloc[0]
     df['minute'] = df['time'] / 60
-
     df['minute'] = df['minute'].round(0).astype(int)
     df = df.groupby('minute', as_index=False).mean()
 
@@ -111,9 +129,9 @@ def get_time_bounds(input_folder, experiment_duration):
 
 
 def plot_experiment(ax, experiment_name, input_folder,
-                    node_order, num_non_workers, num_fast, column, experiment_duration):
+                    node_order, num_non_workers, classification_csv, column, experiment_duration):
 
-    _, fast_nodes, slow_nodes = build_node_sets(node_order, num_non_workers, num_fast)
+    _, fast_nodes, slow_nodes = build_node_sets(node_order, num_non_workers, classification_csv)
     node_to_file = map_nodes_to_files(input_folder, node_order)
 
     start, end = get_time_bounds(input_folder, experiment_duration)
@@ -139,7 +157,7 @@ def main():
      output_folder,
      node_order,
      num_non_workers,
-     num_fast,
+     classification_csv,
      experiment_duration) = parse_args()
 
     os.makedirs(output_folder, exist_ok=True)
@@ -148,28 +166,21 @@ def main():
         fig, ax = plt.subplots(figsize=(8, 5))
 
         plot_experiment(ax, "Knative", input_knative,
-                        node_order, num_non_workers, num_fast, column, experiment_duration)
+                        node_order, num_non_workers, classification_csv, column, experiment_duration)
 
         plot_experiment(ax, "Dirigent", input_dirigent,
-                        node_order, num_non_workers, num_fast, column, experiment_duration)
+                        node_order, num_non_workers, classification_csv, column, experiment_duration)
 
-        if column == 'CPUUtilization':
-            ax.set_ylabel("CPU Utilization [%]")
-        else:
-            ax.set_ylabel("Memory Utilization [%]")
-
+        ax.set_ylabel("CPU Utilization [%]" if column == 'CPUUtilization' else "Memory Utilization [%]")
         ax.set_xlabel("Time [min]")
         ax.set_ylim(0, 100)
         ax.set_title(f"Worker Nodes ({column})")
-
         ax.grid()
         ax.legend()
 
         plt.tight_layout()
-
         plt.savefig(f"{output_folder}/{column}.png")
         plt.savefig(f"{output_folder}/{column}.pdf", bbox_inches='tight')
-
         plt.close()
 
 
