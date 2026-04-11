@@ -7,37 +7,38 @@ import pandas as pd
 
 
 def parse_args():
-    if len(sys.argv) < 7:
+    if len(sys.argv) < 8:
         print("Usage:")
-        print("python plot_util.py <knative_dir> <dirigent_dir> <output_dir> "
-              "<num_master> <num_fast> user@node1 user@node2 ... user@nodeN")
+        print("python plot_new_utilization.py <knative_cpu_mem_usage_dir> <dirigent_cpu_mem_usage_dir> <output_dir> "
+              "<experiment_duration> <num_non_workers> <num_fast> user@node1 user@node2 ... user@nodeN")
         sys.exit(1)
 
     input_knative = sys.argv[1]
     input_dirigent = sys.argv[2]
     output_folder = sys.argv[3]
 
-    num_master = int(sys.argv[4])
-    num_fast = int(sys.argv[5])
+    experiment_duration = int(sys.argv[4])
+    num_non_workers = int(sys.argv[5])
+    num_fast = int(sys.argv[6])
 
-    node_order = sys.argv[6:]  # whitespace-separated
+    node_order = sys.argv[7:]  # whitespace-separated
 
-    if len(node_order) < num_master + num_fast:
-        print("Error: not enough nodes for given master/fast counts")
+    if len(node_order) < 1 + num_fast:
+        print("Error: not enough nodes for fast node counts + a required master")
         sys.exit(1)
 
-    return input_knative, input_dirigent, output_folder, node_order, num_master, num_fast
+    return input_knative, input_dirigent, output_folder, node_order, num_non_workers, num_fast, experiment_duration
 
 
-def build_node_sets(node_order, num_master, num_fast):
-    worker_nodes = node_order[num_master:]
+def build_node_sets(node_order, num_non_workers, num_fast):
+    worker_nodes = node_order[num_non_workers:]
     fast_nodes = worker_nodes[:num_fast]
     slow_nodes = worker_nodes[num_fast:]
     return worker_nodes, fast_nodes, slow_nodes
 
 
 def map_nodes_to_files(input_folder, node_order):
-    all_files = sorted(glob.glob(os.path.join(input_folder, "cpu_mem_usage", "*.csv")))
+    all_files = sorted(glob.glob(os.path.join(input_folder, "*.csv")))
     node_to_file = {}
 
     for f in all_files:
@@ -80,9 +81,6 @@ def load_and_process(file_path, start, end):
     df['time'] = df['Timestamp'] - df['Timestamp'].iloc[0]
     df['minute'] = df['time'] / 60
 
-    # Remove warmup
-    df = df[df['minute'] >= 10]
-
     df['minute'] = df['minute'].round(0).astype(int)
     df = df.groupby('minute', as_index=False).mean()
 
@@ -91,6 +89,8 @@ def load_and_process(file_path, start, end):
 
 def aggregate_nodes(node_files, start, end):
     df_all = pd.DataFrame()
+
+    print(start, end)
 
     for idx, f in enumerate(node_files):
         df = load_and_process(f, start, end)
@@ -103,20 +103,22 @@ def aggregate_nodes(node_files, start, end):
     return df_all.groupby('minute', as_index=False).mean()
 
 
-def get_time_bounds(input_folder):
-    experiment_df = pd.read_csv(os.path.join(input_folder, "experiment_duration_30.csv"))
+def get_time_bounds(input_folder, experiment_duration):
+    experiment_path = os.path.join(input_folder, f"experiment_duration_{experiment_duration}.csv")
+    experiment_path = experiment_path.replace("/cpu_mem_usage", "")
+    experiment_df = pd.read_csv(experiment_path)
     start = experiment_df['startTime'][0] / 1e6
     end = experiment_df['startTime'].iloc[-1] / 1e6
     return start, end
 
 
 def plot_experiment(ax, experiment_name, input_folder,
-                    node_order, num_master, num_fast, column):
+                    node_order, num_non_workers, num_fast, column, experiment_duration):
 
-    _, fast_nodes, slow_nodes = build_node_sets(node_order, num_master, num_fast)
+    _, fast_nodes, slow_nodes = build_node_sets(node_order, num_non_workers, num_fast)
     node_to_file = map_nodes_to_files(input_folder, node_order)
 
-    start, end = get_time_bounds(input_folder)
+    start, end = get_time_bounds(input_folder, experiment_duration)
 
     fast_files = [node_to_file[n] for n in fast_nodes if n in node_to_file]
     slow_files = [node_to_file[n] for n in slow_nodes if n in node_to_file]
@@ -138,8 +140,9 @@ def main():
      input_dirigent,
      output_folder,
      node_order,
-     num_master,
-     num_fast) = parse_args()
+     num_non_workers,
+     num_fast,
+     experiment_duration) = parse_args()
 
     os.makedirs(output_folder, exist_ok=True)
 
@@ -147,10 +150,10 @@ def main():
         fig, ax = plt.subplots(figsize=(8, 5))
 
         plot_experiment(ax, "Knative", input_knative,
-                        node_order, num_master, num_fast, column)
+                        node_order, num_non_workers, num_fast, column, experiment_duration)
 
         plot_experiment(ax, "Dirigent", input_dirigent,
-                        node_order, num_master, num_fast, column)
+                        node_order, num_non_workers, num_fast, column, experiment_duration)
 
         if column == 'CPUUtilization':
             ax.set_ylabel("CPU Utilization [%]")
