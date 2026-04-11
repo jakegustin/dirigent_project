@@ -13,6 +13,10 @@ Instructions:
 - On your local machine run `./scripts/modify_iteration_multiplier.sh dirigent 500`
   - Note: If you repeat this command, the `dirigent_backup.csv` file will no longer be the original. But it can be recreated by using the script with a value of `155`.
   - For context, the original IterationMultiplier of the artifact evaluation is `155`, but don't use this since it does not stress the CPU.
+- On `node0` modify `pkg/metric/record.go` to add the following line to the `ExecutionRecord` struct: **MachineName string \`csv:"machineName"\`**
+  - Place this after the line with `MemoryAllocationTimeout bool`
+- On `node0` modify `pkg/driver/clients/http_client.go` to add the following line to the `DeserializeDirigentResponse` function: **record.MachineName = deserializedResponse.MachineName**
+  - Place this after the line `record.ActualDuration`
 - On the `node0` execute `mkdir -p ~/invitro/data/traces/azure_500`.
 - Copy traces from this folder on local machine to `node0` using `scp azure_500/* user@node0:~/invitro/data/traces/azure_500/`.
 - Make sure on `node0` you navigate to `~/invitro` directory (`cd ~/invitro`) and confirm the branch is in `rps_mode` (`git branch` should output `rps_mode`). 

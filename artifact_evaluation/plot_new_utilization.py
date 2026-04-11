@@ -50,7 +50,7 @@ def map_nodes_to_files(input_folder, node_order):
 
 
 def load_and_process(file_path, start, end):
-    df = pd.read_csv(file_path)
+    df = pd.read_csv(file_path, dtype={"machineName": str})
 
     # Clean column names
     df.columns = df.columns.str.strip()
@@ -90,8 +90,6 @@ def load_and_process(file_path, start, end):
 def aggregate_nodes(node_files, start, end):
     df_all = pd.DataFrame()
 
-    print(start, end)
-
     for idx, f in enumerate(node_files):
         df = load_and_process(f, start, end)
         df['id'] = idx
@@ -106,7 +104,7 @@ def aggregate_nodes(node_files, start, end):
 def get_time_bounds(input_folder, experiment_duration):
     experiment_path = os.path.join(input_folder, f"experiment_duration_{experiment_duration}.csv")
     experiment_path = experiment_path.replace("/cpu_mem_usage", "")
-    experiment_df = pd.read_csv(experiment_path)
+    experiment_df = pd.read_csv(experiment_path, dtype={"machineName": str})
     start = experiment_df['startTime'][0] / 1e6
     end = experiment_df['startTime'].iloc[-1] / 1e6
     return start, end
