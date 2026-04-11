@@ -11,9 +11,10 @@ Instructions:
 - On your local machine run `./scripts/set_cpu_freq.sh dirigent [Num_Fast_Nodes] user@node0 user@node1 ... user@nodeN`
   - For example, if you want 7 worker nodes as fast nodes, you should do `./scripts/set_cpu_freq.sh dirigent 7 user@node0 user@node1 ... user@nodeN`
 - On the `node0` execute `mkdir -p ~/invitro/data/traces/azure_500`.
-- Copy traces from this folder to `node0` using `scp azure_500/* user@node0:~/invitro/data/traces/azure_500/`.
+- Copy traces from this folder on local machine to `node0` using `scp azure_500/* user@node0:~/invitro/data/traces/azure_500/`.
 - Make sure on `node0` you navigate to `~/invitro` directory (`cd ~/invitro`) and confirm the branch is in `rps_mode` (`git branch` should output `rps_mode`). 
 - With text editor open `~/invitro/cmd/config_dirigent_trace.json` and confirm TracePath is `data/traces/azure_500`. Change the config file if needed.
+  - You can also adjust the ExperimentDuration here if needed, but you should confirm it is set to 30 unless you are requested to change it.
 - On `node0`, you should copy the modified dirigent CSV file to overwrite the existing dirigent.csv file with `cp ~/invitro/data/traces/azure_500/dirigent_modified.csv ~/invitro/data/traces/azure_500/dirigent.csv`
   - The values in the last column should ***not*** be 155 after the `cp` command completes.
 - On your local machine run `./scripts/start_resource_monitoring.sh user@node0 user@node1 ... user@nodeN`. 
