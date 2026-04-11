@@ -65,7 +65,7 @@ def validate_required_columns(df: pd.DataFrame, csv_path: str, dataset_name: str
 
 
 def load_dataset(csv_path: str, dataset_name: str) -> pd.DataFrame:
-    df = pd.read_csv(csv_path)
+    df = pd.read_csv(csv_path, dtype={"machineName": str})
     validate_required_columns(df, csv_path, dataset_name)
 
     df = df.copy()
@@ -237,12 +237,12 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--dirigent-csv",
-        default=os.path.join(real_path, "azure_500/dirigent/results_azure_500/experiment_duration_30.csv"),
+        default=os.path.join(real_path, "azure_500/dirigent/results_azure_500/experiment_duration_5.csv"),
         help="Path to Dirigent experiment CSV.",
     )
     parser.add_argument(
         "--knative-csv",
-        default=os.path.join(real_path, "azure_500/knative/results_azure_500/experiment_duration_30.csv"),
+        default=os.path.join(real_path, "azure_500/knative/results_azure_500/experiment_duration_5.csv"),
         help="Path to Knative experiment CSV.",
     )
     parser.add_argument(
@@ -265,7 +265,7 @@ def parse_args() -> argparse.Namespace:
     return parser.parse_args()
 
 def load_node_classes(path: str) -> dict:
-    df = pd.read_csv(path)
+    df = pd.read_csv(path, dtype={"machineName": str})
     if not {"node_name", "class"}.issubset(df.columns):
         raise ValueError("--node-classes CSV must have 'node_name' and 'class' columns")
     return dict(zip(df["node_name"].str.strip(), df["class"].str.strip()))
