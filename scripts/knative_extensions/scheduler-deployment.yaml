@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hierarchical_scheduler
+  namespace: kube-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: hierarchical_scheduler
+  template:
+    metadata:
+      labels:
+        component: hierarchical_scheduler
+    spec:
+      serviceAccountName: hierarchical_scheduler
+      containers:
+        - name: hierarchical_scheduler
+          image: ghcr.io/jakegustin/hierarchical_scheduler:latest
+          args:
+            - --config=/etc/kubernetes/scheduler-config.yaml
+          volumeMounts:
+            - name: config
+              mountPath: /etc/kubernetes
+      volumes:
+        - name: config
+          configMap:
+            name: hierarchical_scheduler_config
