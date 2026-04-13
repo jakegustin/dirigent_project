@@ -33,18 +33,22 @@ fi
 # Extract remaining worker nodes
 WORKERS=("${NODES[@]:$SKIP}")
 
+function RemoteExec() {
+    ssh -oStrictHostKeyChecking=no -p 22 "$1" "$2";
+}
+
 # Function to pin frequency
 disable_pstate() {
   local node="$1"
 
   echo "Disabling Intel PState on $node"
 
-  ssh "$node" "sudo sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT=\"|GRUB_CMDLINE_LINUX_DEFAULT=\"intel_pstate=passive |' /etc/default/grub"
-  ssh "$node" sudo update-grub
+  RemoteExec "$node" "sudo sed -i 's|GRUB_CMDLINE_LINUX_DEFAULT=\"|GRUB_CMDLINE_LINUX_DEFAULT=\"intel_pstate=passive |' /etc/default/grub"
+  RemoteExec "$node" "sudo update-grub"
 
   echo "Rebooting node $node to put PState change into effect"
 
-  ssh "$node" sudo reboot
+  RemoteExec "$node" "sudo reboot"
 }
 
 # Disable PState for each worker node
