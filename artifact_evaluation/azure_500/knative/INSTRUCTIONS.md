@@ -18,7 +18,7 @@ Instructions:
 - On `node0` modify `pkg/driver/clients/http_client.go` to add the following line to the `DeserializeDirigentResponse` function: **record.MachineName = deserializedResponse.MachineName**
   - Place this after the line `record.ActualDuration`
 - On `node0` create a directory where trace will be stored `cd invitro; mkdir data/traces/azure_500`.
-- Copy the trace from folder where this instruction file is located to the folder you previously created on `node0` using the following command `artifact_evaluation/azure_500/knative/azure_500/* user@node0:~/invitro/data/traces/azure_500`. 
+- Copy the trace from folder where this instruction file is located to the folder you previously created on `node0` using the following command `scp artifact_evaluation/azure_500/knative/azure_500/* user@node0:~/invitro/data/traces/azure_500`. 
 - On your local machine run `./scripts/start_resource_monitoring.sh user@node0 user@node1 ... user@nodeN`.
 - *If explicitly requested to change the experiment duration*, you can also adjust the ExperimentDuration in `~/invitro/cmd/config_knative.json`. Unless another value is requested, you should confirm it is set to 30.
 - On `node0` inside screen/tmux run `cd ~/invitro; go run cmd/loader.go --config cmd/config_knative.json`. Function deployment will take 10-20 minutes, and then experiment will run for additional 30 minutes.

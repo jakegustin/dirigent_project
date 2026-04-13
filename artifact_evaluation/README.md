@@ -41,7 +41,7 @@ Instructions to set up Knative/K8s baseline cluster:
 - Make sure the cluster is in a reloaded state, i.e., that neither Dirigent nor Knative is not running.
 - Clone Invitro locally and checkout to `ha_k8s` branch (`git clone --branch=ha_k8s https://github.com/vhive-serverless/invitro`)
 - Open Cloudlab experiment, open Cloudlab extension, and copy list of all addresses (RAW) using the extension. This puts the list of all nodes in your clipboard in format requested by the scripts below.
-- On your local machine, execute `./scripts/disable_pstate.sh knative user@node0 user@node1 ... user@nodeN`. 
+- On your local machine, execute `../dirigent_project/scripts/disable_pstate.sh knative user@node0 user@node1 ... user@nodeN`. 
   - **This will cause the worker nodes to reboot. Wait here and monitor CloudLab to see when the nodes come back online. Only proceed when all workers show as Ready/Finished**
 - Set up a Knative/K8s cluster by locally running `./scripts/setup/create_multinode.sh`. Arguments should be the copied list of addresses from the previous step. For example, `./scripts/setup/create_multinode.sh user@node0 user@node1 ... user@nodeN`. This script should be executed only once.
 - After a couple of minutes, once the script has completed executing, the cluster should be running, and you can ssh into `node0`. Execute `kubectl get pods -A` and verify that installation has completed successfully by checking that all pods are in `Running` or `Completed` state.
