@@ -29,7 +29,7 @@ Notes:
 
 Instructions to set up a Dirigent cluster:
 - Make sure the cluster is in a reloaded state, i.e., that neither Dirigent nor Knative is not running. 
-- Clone Dirigent locally (`git clone https://github.com/eth-easl/dirigent.git`)
+- Clone the repo locally (`git clone https://github.com/jakegustin/dirigent_project.git`)
 - Set sandbox runtime (`containerd`) by editing `WORKER_RUNTIME` in `./scripts/setup.cfg`
 - In `scripts/setup.cfg`, also confirm that...
   - `SCHEDULING_MODE="existing"`
@@ -42,7 +42,7 @@ Instructions to set up a Dirigent cluster:
 
 Instructions to set up a Modified Dirigent cluster:
 - Make sure the cluster is in a reloaded state, i.e., that neither Dirigent nor Knative is not running. 
-- Clone Dirigent locally (`git clone https://github.com/eth-easl/dirigent.git`)
+- Clone Dirigent locally (`git clone https://github.com/jakegustin/dirigent_project.git`)
 - Set sandbox runtime (`containerd`) by editing `WORKER_RUNTIME` in `./scripts/setup.cfg`
 - In `scripts/setup.cfg`, also confirm that...
   - `SCHEDULING_MODE="hierarchical"`

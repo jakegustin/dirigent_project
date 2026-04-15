@@ -69,6 +69,9 @@ func isUserRoot() (int, bool) {
 
 func NewWorkerNode(cpApi proto.CpiInterfaceClient, config config.WorkerNodeConfig, name ...string) *WorkerNode {
 	hostName, err := os.Hostname()
+	if dotIdx := strings.Index(hostName, "."); dotIdx > 0 {
+		hostName = hostName[:dotIdx]
+	}
 	if err != nil {
 		logrus.Warn("Error fetching host name.")
 	}
@@ -78,7 +81,6 @@ func NewWorkerNode(cpApi proto.CpiInterfaceClient, config config.WorkerNodeConfi
 	}
 
 	nodeName := fmt.Sprintf("%s-%d", hostName, rand.Int())
-	printf(nodeName)
 
 	sandboxManager := managers.NewSandboxManager(nodeName)
 
