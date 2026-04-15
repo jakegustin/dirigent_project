@@ -39,9 +39,10 @@ const (
 type HierarchicalPolicy struct {
 	fastHostnames map[string]struct{}
 	slowHostnames map[string]struct{}
+	threshold     float64
 }
 
-func NewHierarchicalPolicy(fastHostnames, slowHostnames []string) *HierarchicalPolicy {
+func NewHierarchicalPolicy(fastHostnames, slowHostnames []string, threshold float64) *HierarchicalPolicy {
 	fastSet := make(map[string]struct{})
 	for _, host := range fastHostnames {
 		h := strings.TrimSpace(host)
@@ -61,6 +62,7 @@ func NewHierarchicalPolicy(fastHostnames, slowHostnames []string) *HierarchicalP
 	return &HierarchicalPolicy{
 		fastHostnames: fastSet,
 		slowHostnames: slowSet,
+		threshold:     threshold,
 	}
 }
 
@@ -81,24 +83,12 @@ func (p *HierarchicalPolicy) classifyNode(nodeName string) string {
 	return ""
 }
 
-func calculateProjectedUtilization(node core.WorkerNodeInterface, requested *ResourceMap) float64 {
-	if node.GetCpuCores() == 0 {
-		return 100
-	}
-
-	currentUsedCores := (float64(node.GetCpuUsage()) / 100.0) * float64(node.GetCpuCores())
-	projectedUsedCores := currentUsedCores + float64(requested.GetCPUCores())
-
-	projectedUtilization := (projectedUsedCores / float64(node.GetCpuCores())) * 100.0
-	if projectedUtilization > 100 {
-		return 100
-	}
-
-	return projectedUtilization
+func getCurrentUtilization(node core.WorkerNodeInterface) float64 {
+	return float64(node.GetCpuUsage())
 }
 
-func scoreNodeByClass(nodeClass string, utilization float64) int {
-	underThreshold := utilization < 80
+func scoreNodeByClass(nodeClass string, utilization float64, threshold float64) int {
+	underThreshold := utilization < threshold
 
 	switch nodeClass {
 	case nodeClassFast:
@@ -116,7 +106,7 @@ func scoreNodeByClass(nodeClass string, utilization float64) int {
 	}
 }
 
-func (p *HierarchicalPolicy) Place(storage synchronization.SyncStructure[string, core.WorkerNodeInterface], requested *ResourceMap) core.WorkerNodeInterface {
+func (p *HierarchicalPolicy) Place(storage synchronization.SyncStructure[string, core.WorkerNodeInterface], _ *ResourceMap) core.WorkerNodeInterface {
 	schedulable := getSchedulableNodes(storage.GetValues())
 	if len(schedulable) == 0 {
 		return nil
@@ -129,9 +119,9 @@ func (p *HierarchicalPolicy) Place(storage synchronization.SyncStructure[string,
 	)
 
 	for _, node := range schedulable {
-		utilization := calculateProjectedUtilization(node, requested)
+		utilization := getCurrentUtilization(node)
 		nodeClass := p.classifyNode(node.GetName())
-		score := scoreNodeByClass(nodeClass, utilization)
+		score := scoreNodeByClass(nodeClass, utilization, p.threshold)
 
 		if score > maxScore {
 			maxScore = score

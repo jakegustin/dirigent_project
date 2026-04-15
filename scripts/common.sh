@@ -64,6 +64,7 @@ function SetupControlPlane() {
 
     RemoteExec $1 "yq -i '.fastWorkerHostnamesCsv = \"$FAST_WORKER_HOSTNAMES_CSV\"' ~/cluster_manager/cmd/master_node/config_cluster$2.yaml"
     RemoteExec $1 "yq -i '.slowWorkerHostnamesCsv = \"$SLOW_WORKER_HOSTNAMES_CSV\"' ~/cluster_manager/cmd/master_node/config_cluster$2.yaml"
+    RemoteExec $1 "yq -i '.hierarchicalThreshold = $HIERARCHICAL_THRESHOLD' ~/cluster_manager/cmd/master_node/config_cluster$2.yaml"
 
     RemoteExec $1 "sudo cp ~/cluster_manager/cmd/master_node/config_cluster$2.yaml /cluster_manager/cmd/master_node/config_cluster.yaml"
 

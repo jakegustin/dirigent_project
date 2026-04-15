@@ -43,6 +43,7 @@ type ControlPlaneConfig struct {
 	PlacementPolicy            string         `mapstructure:"placementPolicy"`
 	FastWorkerHostnamesCSV     string         `mapstructure:"fastWorkerHostnamesCsv"`
 	SlowWorkerHostnamesCSV     string         `mapstructure:"slowWorkerHostnamesCsv"`
+	HierarchicalThreshold      float64        `mapstructure:"hierarchicalThreshold"`
 	Persistence                bool           `mapstructure:"persistence"`
 	Profiler                   ProfilerConfig `mapstructure:"profiler"`
 	RedisConf                  RedisConf      `mapstructure:"redis"`

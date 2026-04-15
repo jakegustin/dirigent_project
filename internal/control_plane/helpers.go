@@ -143,9 +143,14 @@ func ParsePlacementPolicy(controlPlaneConfig config.ControlPlaneConfig) placemen
 	case "kubernetes":
 		return placement_policy.NewKubernetesPolicy()
 	case "hierarchical":
+		threshold := controlPlaneConfig.HierarchicalThreshold
+		if threshold <= 0 {
+			threshold = 70.0
+		}
 		return placement_policy.NewHierarchicalPolicy(
 			parseCsvList(controlPlaneConfig.FastWorkerHostnamesCSV),
 			parseCsvList(controlPlaneConfig.SlowWorkerHostnamesCSV),
+			threshold,
 		)
 	default:
 		logrus.Error("Failed to parse placement, default policy is random")

@@ -5,6 +5,7 @@ registrationServerReplicas: ""
 verbosity: "trace"
 traceOutputFolder: "data"
 placementPolicy: "random"
+hierarchicalThreshold: 70.0
 persistence: true
 reconstruct: true
 
