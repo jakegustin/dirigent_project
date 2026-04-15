@@ -57,6 +57,14 @@ function SetupControlPlane() {
     RemoteExec $1 "sudo mkdir -p /cluster_manager/cmd/master_node"
     RemoteExec $1 "cd ~/cluster_manager/cmd/master_node/; /usr/local/go/bin/go build main.go"
     RemoteExec $1 "sudo cp ~/cluster_manager/cmd/master_node/main /cluster_manager/cmd/master_node/"
+
+    if [ -n "$RESOLVED_PLACEMENT_POLICY" ]; then
+        RemoteExec $1 "yq -i '.placementPolicy = \"$RESOLVED_PLACEMENT_POLICY\"' ~/cluster_manager/cmd/master_node/config_cluster$2.yaml"
+    fi
+
+    RemoteExec $1 "yq -i '.fastWorkerHostnamesCsv = \"$FAST_WORKER_HOSTNAMES_CSV\"' ~/cluster_manager/cmd/master_node/config_cluster$2.yaml"
+    RemoteExec $1 "yq -i '.slowWorkerHostnamesCsv = \"$SLOW_WORKER_HOSTNAMES_CSV\"' ~/cluster_manager/cmd/master_node/config_cluster$2.yaml"
+
     RemoteExec $1 "sudo cp ~/cluster_manager/cmd/master_node/config_cluster$2.yaml /cluster_manager/cmd/master_node/config_cluster.yaml"
 
     # Remove old logs

@@ -78,6 +78,7 @@ func NewWorkerNode(cpApi proto.CpiInterfaceClient, config config.WorkerNodeConfi
 	}
 
 	nodeName := fmt.Sprintf("%s-%d", hostName, rand.Int())
+	printf(nodeName)
 
 	sandboxManager := managers.NewSandboxManager(nodeName)
 

@@ -32,6 +32,46 @@ source $DIR/setup.cfg
 # Skip the loader node
 shift
 
+# Resolve scheduling/placement settings from setup.cfg
+RESOLVED_PLACEMENT_POLICY="$DEFAULT_PLACEMENT_POLICY"
+if [ "$SCHEDULING_MODE" = "hierarchical" ]; then
+    RESOLVED_PLACEMENT_POLICY="hierarchical"
+fi
+
+NODES=($@)
+WORKER_START_INDEX=$((CONTROL_PLANE_REPLICAS + DATA_PLANE_REPLICAS))
+WORKERS=("${NODES[@]:$WORKER_START_INDEX}")
+
+if [ "$NUM_FAST_WORKERS" -gt "${#WORKERS[@]}" ]; then
+    echo "NUM_FAST_WORKERS (${NUM_FAST_WORKERS}) is greater than worker count (${#WORKERS[@]})."
+    exit 1
+fi
+
+FAST_WORKER_HOSTNAMES=()
+SLOW_WORKER_HOSTNAMES=()
+
+for ((i=0; i<${#WORKERS[@]}; i++)); do
+    HOSTNAME=$(RemoteExec "${WORKERS[$i]}" "hostname -s" | tr -d '\r\n')
+
+    if [ "$i" -lt "$NUM_FAST_WORKERS" ]; then
+        FAST_WORKER_HOSTNAMES+=("$HOSTNAME")
+    else
+        SLOW_WORKER_HOSTNAMES+=("$HOSTNAME")
+    fi
+done
+
+FAST_WORKER_HOSTNAMES_CSV=$(IFS=, ; echo "${FAST_WORKER_HOSTNAMES[*]}")
+SLOW_WORKER_HOSTNAMES_CSV=$(IFS=, ; echo "${SLOW_WORKER_HOSTNAMES[*]}")
+
+export RESOLVED_PLACEMENT_POLICY
+export FAST_WORKER_HOSTNAMES_CSV
+export SLOW_WORKER_HOSTNAMES_CSV
+
+echo "Scheduling mode: ${SCHEDULING_MODE}"
+echo "Placement policy: ${RESOLVED_PLACEMENT_POLICY}"
+echo "Fast workers (${NUM_FAST_WORKERS}, ${FAST_WORKER_CLOCK}): ${FAST_WORKER_HOSTNAMES_CSV}"
+echo "Slow workers (${SLOW_WORKER_CLOCK}): ${SLOW_WORKER_HOSTNAMES_CSV}"
+
 # Kill all Dirigent processes
 KillSystemdServices $@
 

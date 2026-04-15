@@ -50,7 +50,7 @@ echo "Fast nodes (${#FAST_NODES[@]}): ${FAST_NODES[*]}"
 echo "Slow nodes (${#SLOW_NODES[@]}): ${SLOW_NODES[*]}"
 
 function RemoteExec() {
-    ssh -oStrictHostKeyChecking=no -J myJump -p 22 "$1" "$2";
+    ssh -oStrictHostKeyChecking=no -p 22 "$1" "$2";
 }
 
 # Function to pin frequency
@@ -75,9 +75,9 @@ set_freq() {
   RemoteExec "$node" "sudo cpupower idle-set -D 0 > /dev/null"
 }
 
-# Apply fast nodes (2.1 GHz)
+# Apply fast nodes (2.4 GHz)
 for node in "${FAST_NODES[@]}"; do
-  set_freq "$node" "2.1GHz" &
+  set_freq "$node" "2.4GHz" &
 done
 
 # Apply slow nodes (1.2 GHz)

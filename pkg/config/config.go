@@ -41,6 +41,8 @@ type ControlPlaneConfig struct {
 	Verbosity                  string         `mapstructure:"verbosity"`
 	TraceOutputFolder          string         `mapstructure:"traceOutputFolder"`
 	PlacementPolicy            string         `mapstructure:"placementPolicy"`
+	FastWorkerHostnamesCSV     string         `mapstructure:"fastWorkerHostnamesCsv"`
+	SlowWorkerHostnamesCSV     string         `mapstructure:"slowWorkerHostnamesCsv"`
 	Persistence                bool           `mapstructure:"persistence"`
 	Profiler                   ProfilerConfig `mapstructure:"profiler"`
 	RedisConf                  RedisConf      `mapstructure:"redis"`

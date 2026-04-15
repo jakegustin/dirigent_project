@@ -9,11 +9,11 @@ import pandas as pd
 def parse_args():
     if len(sys.argv) < 8:
         print("Usage:")
-        print("python plot_new_utilization.py <knative_cpu_mem_usage_dir> <dirigent_cpu_mem_usage_dir> <output_dir> "
+        print("python plot_new_utilization.py <hierarchical_cpu_mem_usage_dir> <baseline_cpu_mem_usage_dir> <output_dir> "
               "<experiment_duration> <num_non_workers> <node_classification_csv> user@node1 user@node2 ... user@nodeN")
         sys.exit(1)
 
-    input_knative = sys.argv[1]
+    input_modified = sys.argv[1]
     input_dirigent = sys.argv[2]
     output_folder = sys.argv[3]
     experiment_duration = int(sys.argv[4])
@@ -21,7 +21,7 @@ def parse_args():
     classification_csv = sys.argv[6]
     node_order = sys.argv[7:]
 
-    return input_knative, input_dirigent, output_folder, node_order, num_non_workers, classification_csv, experiment_duration
+    return input_modified, input_dirigent, output_folder, node_order, num_non_workers, classification_csv, experiment_duration
 
 
 def build_node_sets(node_order, num_non_workers, classification_csv):
@@ -152,7 +152,7 @@ def plot_experiment(ax, experiment_name, input_folder,
 
 
 def main():
-    (input_knative,
+    (input_modified,
      input_dirigent,
      output_folder,
      node_order,
@@ -165,7 +165,7 @@ def main():
     for column in ['CPUUtilization', 'memoryUtilization']:
         fig, ax = plt.subplots(figsize=(8, 5))
 
-        plot_experiment(ax, "Knative", input_knative,
+        plot_experiment(ax, "Modified", input_modified,
                         node_order, num_non_workers, classification_csv, column, experiment_duration)
 
         plot_experiment(ax, "Dirigent", input_dirigent,
