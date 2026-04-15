@@ -44,7 +44,7 @@ const (
 	TestDockerImageName string = "docker.io/cvetkovic/dirigent_empty_function:latest"
 
 	TolerateHeartbeatMisses = 3
-	HeartbeatInterval       = 5 * time.Second
+	HeartbeatInterval       = 1 * time.Second
 
 	WorkerNodeTrafficTimeout = 60 * time.Second
 
