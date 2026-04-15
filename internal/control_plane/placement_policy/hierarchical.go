@@ -29,6 +29,7 @@ import (
 	"cluster_manager/pkg/synchronization"
 	"math/rand"
 	"strings"
+	"fmt"
 )
 
 const (
@@ -131,6 +132,7 @@ func (p *HierarchicalPolicy) Place(storage synchronization.SyncStructure[string,
 	for _, node := range schedulable {
 		utilization := calculateProjectedUtilization(node, requested)
 		nodeClass := p.classifyNode(node.GetName())
+		fmt.printf("%s | %s", node, nodeClass)
 		score := scoreNodeByClass(nodeClass, utilization)
 
 		if score > maxScore {
