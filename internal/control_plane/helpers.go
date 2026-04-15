@@ -32,6 +32,7 @@ import (
 	"cluster_manager/pkg/config"
 	"context"
 	"github.com/sirupsen/logrus"
+	"strings"
 	"sync/atomic"
 	"time"
 )
@@ -141,8 +142,30 @@ func ParsePlacementPolicy(controlPlaneConfig config.ControlPlaneConfig) placemen
 		return placement_policy.NewRoundRobinPlacement()
 	case "kubernetes":
 		return placement_policy.NewKubernetesPolicy()
+	case "hierarchical":
+		return placement_policy.NewHierarchicalPolicy(
+			parseCsvList(controlPlaneConfig.FastWorkerHostnamesCSV),
+			parseCsvList(controlPlaneConfig.SlowWorkerHostnamesCSV),
+		)
 	default:
 		logrus.Error("Failed to parse placement, default policy is random")
 		return placement_policy.NewRandomPlacement()
 	}
+}
+
+func parseCsvList(value string) []string {
+	if value == "" {
+		return []string{}
+	}
+
+	tokens := strings.Split(value, ",")
+	result := make([]string, 0, len(tokens))
+	for _, token := range tokens {
+		trimmed := strings.TrimSpace(token)
+		if trimmed != "" {
+			result = append(result, trimmed)
+		}
+	}
+
+	return result
 }

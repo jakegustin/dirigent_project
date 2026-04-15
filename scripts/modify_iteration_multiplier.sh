@@ -10,8 +10,8 @@ system="$1"
 multiplier="$2"
 
 # Confirm system selection is valid
-if [[ "${system}" != "dirigent" && "${system}" != "knative" ]]; then
-  echo "Invalid first argument: ${system}. Expected 'dirigent' or 'knative'." >&2
+if [[ "${system}" != "dirigent" && "${system}" != "modified" ]]; then
+  echo "Invalid first argument: ${system}. Expected 'dirigent' or 'modified'." >&2
   exit 0
 fi
 

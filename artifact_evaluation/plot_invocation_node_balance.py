@@ -94,11 +94,11 @@ def plot_per_node(ax: plt.Axes, counts: pd.DataFrame, title: str) -> None:
     ax.grid(True)
 
 
-def plot_per_class(ax: plt.Axes, dirigent: pd.DataFrame, knative: pd.DataFrame) -> None:
-    system_colors = {"dirigent": "tab:green", "knative": "tab:blue"}
+def plot_per_class(ax: plt.Axes, dirigent: pd.DataFrame, modified: pd.DataFrame) -> None:
+    system_colors = {"dirigent": "tab:green", "modified": "tab:blue"}
     class_styles = {"fast": "solid", "slow": "dashed", "unknown": "dotted"}
 
-    for system_label, df in [("dirigent", dirigent), ("knative", knative)]:
+    for system_label, df in [("dirigent", dirigent), ("modified", modified)]:
         for cls, grp in df.groupby("class"):
             grp = grp.sort_values("minute")
             ax.step(grp["minute"], grp["invocations"], where="post",
@@ -128,8 +128,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--dirigent-csv",
         default=os.path.join(real_path, "azure_500/dirigent/results_azure_500/experiment_duration_5.csv"))
-    parser.add_argument("--knative-csv",
-        default=os.path.join(real_path, "azure_500/knative/results_azure_500/experiment_duration_5.csv"))
+    parser.add_argument("--modified-csv",
+        default=os.path.join(real_path, "azure_500/modified/results_azure_500/experiment_duration_5.csv"))
     parser.add_argument("--output-dir",
         default=os.path.join(real_path, "azure_500/invocation_node_balance"))
     parser.add_argument("--node-classes", default=None,
@@ -145,19 +145,24 @@ def main() -> None:
     node_classes = load_node_classes(args.node_classes) if args.node_classes else {}
 
     dirigent = load_dataset(args.dirigent_csv, "Dirigent", node_classes)
-    knative  = load_dataset(args.knative_csv,  "Knative",  node_classes)
+    modified  = load_dataset(args.modified_csv,  "modified",  node_classes)
 
     dirigent_counts = build_per_node_minute_counts(dirigent)
-    knative_counts  = build_per_node_minute_counts(knative)
+    modified_counts  = build_per_node_minute_counts(modified)
 
     # Plot 1: per-node lines, Dirigent only (node names are meaningful there)
     fig, ax = plt.subplots(figsize=(10, 5))
     plot_per_node(ax, dirigent_counts, "Dirigent: invocations per node")
-    save_plot(fig, args.output_dir, "invocations_per_node")
+    save_plot(fig, args.output_dir, "invocations_per_node_dirigent")
 
-    # Plot 2: fast vs slow aggregate, both systems
+    # Plot 2: per-node lines, Modified only (node names are meaningful there)
+    fig, ax = plt.subplots(figsize=(10, 5))
+    plot_per_node(ax, modified_counts, "Modified: invocations per node")
+    save_plot(fig, args.output_dir, "invocations_per_node_modified")
+
+    # Plot 3: fast vs slow aggregate, both systems
     fig, ax = plt.subplots(figsize=(8, 5))
-    plot_per_class(ax, build_per_class_minute_counts(dirigent), build_per_class_minute_counts(knative))
+    plot_per_class(ax, build_per_class_minute_counts(dirigent), build_per_class_minute_counts(modified))
     save_plot(fig, args.output_dir, "invocations_per_class")
 
 

@@ -31,6 +31,22 @@ Instructions to set up a Dirigent cluster:
 - Make sure the cluster is in a reloaded state, i.e., that neither Dirigent nor Knative is not running. 
 - Clone Dirigent locally (`git clone https://github.com/eth-easl/dirigent.git`)
 - Set sandbox runtime (`containerd`) by editing `WORKER_RUNTIME` in `./scripts/setup.cfg`
+- In `scripts/setup.cfg`, also confirm that...
+  - `SCHEDULING_MODE="existing"`
+  - `NUM_FAST_WORKERS=[numFastWorkers]`, where `[numFastWorkers]` is an integer like `7`.
+- Open Cloudlab experiment, open Cloudlab extension, and copy list of all addresses (RAW) using the extension. This puts the list of all nodes in your clipboard in format requested by the scripts below.
+- On your local machine, execute `./scripts/disable_pstate.sh dirigent user@node0 user@node1 ... user@nodeN`. 
+  - **This will cause the worker nodes to reboot. Wait here and monitor CloudLab to see when the nodes come back online. Only proceed when all workers show as Ready/Finished**
+- Run locally `./scripts/remote_install.sh`. Arguments should be the copied list of addresses from the previous step. For example, `./scripts/remote_install.sh user@node0 user@node1 ... user@nodeN`. This script should be executed only once.
+- Run locally `./scripts/remote_start_cluster.sh user@node0 user@node1 ... user@nodeN`. After this step Dirigent cluster should be operational. This script can be executed to restart Dirigent cluster in case you experience issues without reloading the Cloudlab cluster.
+
+Instructions to set up a Modified Dirigent cluster:
+- Make sure the cluster is in a reloaded state, i.e., that neither Dirigent nor Knative is not running. 
+- Clone Dirigent locally (`git clone https://github.com/eth-easl/dirigent.git`)
+- Set sandbox runtime (`containerd`) by editing `WORKER_RUNTIME` in `./scripts/setup.cfg`
+- In `scripts/setup.cfg`, also confirm that...
+  - `SCHEDULING_MODE="hierarchical"`
+  - `NUM_FAST_WORKERS=[numFastWorkers]`, where `[numFastWorkers]` is an integer like `7`.
 - Open Cloudlab experiment, open Cloudlab extension, and copy list of all addresses (RAW) using the extension. This puts the list of all nodes in your clipboard in format requested by the scripts below.
 - On your local machine, execute `./scripts/disable_pstate.sh dirigent user@node0 user@node1 ... user@nodeN`. 
   - **This will cause the worker nodes to reboot. Wait here and monitor CloudLab to see when the nodes come back online. Only proceed when all workers show as Ready/Finished**
