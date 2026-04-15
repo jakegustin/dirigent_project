@@ -98,7 +98,7 @@ func calculateProjectedUtilization(node core.WorkerNodeInterface, requested *Res
 }
 
 func scoreNodeByClass(nodeClass string, utilization float64) int {
-	underThreshold := utilization < 90
+	underThreshold := utilization < 80
 
 	switch nodeClass {
 	case nodeClassFast:
