@@ -29,4 +29,4 @@ Instructions:
   - Copy resource utilization data with `mkdir -p ./artifact_evaluation/azure_500/modified/results_azure_500/cpu_mem_usage && ./scripts/collect_resource_monitoring.sh ./artifact_evaluation/azure_500/modified/results_azure_500/cpu_mem_usage user@node0 user@node1 ... user@nodeN`.
   - Create the node classifications CSV by running `./scripts/generate_dirigent_node_classes.sh [cloudlab-experiment-name] [num_fast_nodes] [num_slow_nodes]`
     - For example, if your CloudLab experiment name is `my-dirigent-exp` and you have 7 fast nodes and 7 slow nodes, use `./scripts/generate_dirigent_node_classes.sh my-dirigent-exp 7 7`
-    - This outputs a CSV in your current directory titled `dirigent-classifications.csv`
+    - This outputs a CSV in your current directory titled `dirigent_classes.csv`

@@ -47,6 +47,7 @@ Instructions to set up a Modified Dirigent cluster:
 - In `scripts/setup.cfg`, also confirm that...
   - `SCHEDULING_MODE="hierarchical"`
   - `NUM_FAST_WORKERS=[numFastWorkers]`, where `[numFastWorkers]` is an integer like `7`.
+  - `HIERARCHICAL_THRESHOLD=[value]`, e.g. `70.0`. Controls the max cpu utilization of fast nodes before getting deprioritzed.
 - Open Cloudlab experiment, open Cloudlab extension, and copy list of all addresses (RAW) using the extension. This puts the list of all nodes in your clipboard in format requested by the scripts below.
 - On your local machine, execute `./scripts/disable_pstate.sh dirigent user@node0 user@node1 ... user@nodeN`. 
   - **This will cause the worker nodes to reboot. Wait here and monitor CloudLab to see when the nodes come back online. Only proceed when all workers show as Ready/Finished**
