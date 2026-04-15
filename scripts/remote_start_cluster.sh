@@ -36,6 +36,8 @@ shift
 RESOLVED_PLACEMENT_POLICY="$DEFAULT_PLACEMENT_POLICY"
 if [ "$SCHEDULING_MODE" = "hierarchical" ]; then
     RESOLVED_PLACEMENT_POLICY="hierarchical"
+elif [ "$SCHEDULING_MODE" = "weighted-round-robin" ]; then
+    RESOLVED_PLACEMENT_POLICY="weighted-round-robin"
 fi
 
 NODES=($@)

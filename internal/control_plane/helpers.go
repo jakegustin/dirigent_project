@@ -142,6 +142,11 @@ func ParsePlacementPolicy(controlPlaneConfig config.ControlPlaneConfig) placemen
 		return placement_policy.NewRoundRobinPlacement()
 	case "kubernetes":
 		return placement_policy.NewKubernetesPolicy()
+	case "weighted-round-robin":
+		return placement_policy.NewWeightedRoundRobinPolicy(
+			parseCsvList(controlPlaneConfig.FastWorkerHostnamesCSV),
+			parseCsvList(controlPlaneConfig.SlowWorkerHostnamesCSV),
+		)
 	case "hierarchical":
 		threshold := controlPlaneConfig.HierarchicalThreshold
 		if threshold <= 0 {
