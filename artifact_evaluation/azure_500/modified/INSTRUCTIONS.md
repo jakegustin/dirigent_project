@@ -1,4 +1,4 @@
-## Azure 500 on Dirigent
+## Azure 500 on Modified Dirigent
 
 Time required: 15 min to set up environment and 30 min per experiment
 
@@ -8,7 +8,7 @@ Instructions:
 - Start Dirigent cluster as per instructions located in the root folder of artifact evaluation instructions.
 - On your local machine run `./scripts/set_cpu_freq.sh dirigent [Num_Fast_Nodes] user@node0 user@node1 ... user@nodeN`
   - For example, if you want 7 worker nodes as fast nodes, you should do `./scripts/set_cpu_freq.sh dirigent 7 user@node0 user@node1 ... user@nodeN`
-- On your local machine run `./scripts/modify_iteration_multiplier.sh modified 155`
+- On your local machine run `./scripts/modify_iteration_multiplier.sh modified 300`
   - Note: If you repeat this command, the `dirigent_backup.csv` file will no longer be the original. But it can be recreated by using the script with a value of `155`.
   - For context, the original IterationMultiplier of the artifact evaluation is `155`, but don't use this since it does not stress the CPU.
 - On `node0` modify `pkg/metric/record.go` to add the following line to the `ExecutionRecord` struct: **MachineName string \`csv:"machineName"\`**
@@ -22,6 +22,7 @@ Instructions:
   - You can also adjust the ExperimentDuration here if needed, but you should confirm it is set to 30 unless you are requested to change it.
 - On your local machine run `./scripts/start_resource_monitoring.sh user@node0 user@node1 ... user@nodeN`. 
 - Run the load generator in screen/tmux on `node0` with `cd ~/invitro; go run cmd/loader.go --config cmd/config_dirigent_trace.json`. Wait until the experiment completed (~30 minutes). There should be ~170K invocations, with a negligible failure rate.
+  - **IMPORTANT NOTE: As the test progresses, you will see quite a few intermittent errors: this is normal. If you consistenly notice hundreds of new errors per second for over a minute, then you should stop the experiment - something has gone wrong.**
 - Gather experiment results. Make sure you do not overwrite data from the other experiment, and you place results in correct folders.
   - On your local machine create folders for storing results with `mkdir -p ./artifact_evaluation/azure_500/modified/results_azure_500`.
   - **Make sure to save / back-up, and then remove any existing CSVs in the `results_azure_500/` directory and its `cpu_mem_usage/` subdirectory if applicable!**

@@ -28,8 +28,8 @@ from scipy import stats
 
 real_path = os.path.dirname(os.path.realpath(__file__))
 
-modified_path = f'{real_path}/azure_500/modified/results_azure_500/experiment_duration_5.csv'
-dirigent_containerd = f'{real_path}/azure_500/dirigent/results_azure_500/experiment_duration_5.csv'
+modified_path = f'{real_path}/azure_500/modified/results_azure_500/experiment_duration_30.csv'
+dirigent_containerd = f'{real_path}/azure_500/dirigent/results_azure_500/experiment_duration_30.csv'
 dirigent_firecracker = f'{real_path}/azure_500/dirigent/results_azure_500_firecracker/experiment_duration_30.csv'
 
 

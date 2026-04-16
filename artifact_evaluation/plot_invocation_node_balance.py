@@ -127,9 +127,9 @@ def parse_args() -> argparse.Namespace:
         description="Plot invocation distribution across worker nodes by fast/slow class."
     )
     parser.add_argument("--dirigent-csv",
-        default=os.path.join(real_path, "azure_500/dirigent/results_azure_500/experiment_duration_5.csv"))
+        default=os.path.join(real_path, "azure_500/dirigent/results_azure_500/experiment_duration_30.csv"))
     parser.add_argument("--modified-csv",
-        default=os.path.join(real_path, "azure_500/modified/results_azure_500/experiment_duration_5.csv"))
+        default=os.path.join(real_path, "azure_500/modified/results_azure_500/experiment_duration_30.csv"))
     parser.add_argument("--output-dir",
         default=os.path.join(real_path, "azure_500/invocation_node_balance"))
     parser.add_argument("--node-classes", default=None,
