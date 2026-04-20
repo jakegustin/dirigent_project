@@ -59,6 +59,7 @@ def getCurve(path, idx=0):
 
     df['function_hash'] = df['instance'].str.split("-").str[idx]
     df = df.reset_index(drop=True)
+    # CHANGE "responseTime" to "actualDuration" for CPU-only!
     df['slowdown'] = df['responseTime'] / df['requestedDuration']
     print(f"Slowdown < 1: {df[df['slowdown'] < 1].shape[0] / df.shape[0]}")
 
