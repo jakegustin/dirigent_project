@@ -2,6 +2,3 @@
 !sample_results/*.png
 .DS_Store
 dirigent_classes.csv
-
-# This one's for me! - J
-z_*
