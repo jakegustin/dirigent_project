@@ -1,4 +1,3 @@
-*.png
 !sample_results/*.png
 .DS_Store
 dirigent_classes.csv
